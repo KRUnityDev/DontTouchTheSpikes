@@ -16,6 +16,16 @@ var GameStarded = false;
 var Gravity = 10;
 
 
+//pobieranie obrazków
+var Player_Sprite = new Image();
+Player_Sprite.src = "sprites/pig.png";
+
+var R_Spike_Sprite = new Image();
+R_Spike_Sprite.src = "sprites/RSpike.png"
+
+var L_Spike_Sprite = new Image();
+L_Spike_Sprite.src = "sprites/LSpike.png"
+
 
 var Sprite = new Image();
 Sprite.src = "sprites/Logo.png";
@@ -35,11 +45,13 @@ SpikeClass.prototype.draw = function()
 ctx.beginPath();
 if (this.direction == 1)
 {
-	ctx.rect(0, this.position_y, this.Size_x, this.Size_y);
+	//ctx.rect(0, this.position_y, this.Size_x, this.Size_y);
+	ctx.drawImage(R_Spike_Sprite,0,this.position_y,this.Size_x,this.Size_y);
 }
 else
 {
-	ctx.rect(canvas.width-this.Size_x, this.position_y, this.Size_x,  this.Size_y);
+	//ctx.rect(canvas.width-this.Size_x, this.position_y, this.Size_x,  this.Size_y);
+	ctx.drawImage(L_Spike_Sprite,canvas.width-this.Size_x,this.position_y,this.Size_x,this.Size_y);
 }
 
 ctx.fillStyle = "#0000FF";
@@ -62,7 +74,9 @@ Player.prototype.draw = function()
 {
 	
 ctx.beginPath();
-ctx.rect(this.Position_x, this.Position_y, this.Size_x, this.Size_y);
+//ctx.rect(this.Position_x, this.Position_y, this.Size_x, this.Size_y);
+ctx.drawImage(Player_Sprite,this.Position_x,this.Position_y,this.Size_x,this.Size_y);
+
 ctx.fillStyle = "#FF0000";
 ctx.fill();
 ctx.closePath();
@@ -114,15 +128,28 @@ Player.prototype.collisionDetect = function(SpikeClass)
 }
 
 
-var Gracz = new Player(50,50,canvas.width/2-25,canvas.height/2-25,0,-1,2);
-var Kolec = new SpikeClass(20,20,canvas.height/2,-1);
+var Gracz = new Player(75,75,canvas.width/2-25,canvas.height/2-25,0,-1,2);
+
+var Kolce = [6];
+Kolce[0] = new SpikeClass(30,30,40,-1);
+Kolce[1] = new SpikeClass(30,30,200,-1);
+Kolce[2] = new SpikeClass(30,30,500,-1);
+
+Kolce[3] = new SpikeClass(30,30,40,1);
+Kolce[4] = new SpikeClass(30,30,200,1);
+Kolce[5] = new SpikeClass(30,30,500,1);
 
 function DrawScene()
 {
 	ctx.clearRect(0,0,canvas.width,canvas.height);
 
 	Gracz.draw();
-	Kolec.draw();
+	
+	for(var a = 0; a < Kolce.length; a++)
+	{
+		Kolce[a].draw();
+	}
+	
 
 	if(!GameStarded)
 	{
@@ -139,7 +166,12 @@ function Update() {
 if (GameStarded)
 {
 Gracz.update();
-Gracz.collisionDetect(Kolec);
+
+for(var a = 0; a < Kolce.length; a++)
+{
+		Gracz.collisionDetect(Kolce[a]);
+}
+
 }
 DrawScene();
 }
