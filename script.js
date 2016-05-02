@@ -103,7 +103,7 @@ Player.prototype.collisionDetect = function(SpikeClass)
 		
 			if (this.Position_x+this.Size_x>SpikeClass.position_x)
 			{
-		
+			EndGame();
 			}
 			
 			
