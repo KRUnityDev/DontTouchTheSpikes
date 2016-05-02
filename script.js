@@ -2,12 +2,12 @@
 //pobieranie danych z dokumentu
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
-//ustawianie ctx
-ctx.font = "120px FontAwesome";
+
 
 //obsluga klawiszy
 document.addEventListener("click", Jump, false);
 document.addEventListener("click", StartControl, false);
+
 
 var GameStarded = false;
 
@@ -40,8 +40,10 @@ function SpikeClass(Size_x, Size_y, position_y,direction)
 	this.Size_y = Size_y;
 	this.position_x = canvas.width - Size_x;
 }
+//metoda rysująca kolec
 SpikeClass.prototype.draw = function()
 {
+	
 ctx.beginPath();
 if (this.direction == 1)
 {
@@ -70,6 +72,7 @@ function Player(Size_x,Size_y, Position_x,Position_y, Acceleration_Y, Move_Direc
 	this.Move_Direction = Move_Direction;
 	this.Player_Speed = Player_Speed;
 }
+//Metoda rysująca gracza
 Player.prototype.draw = function()
 {
 	
@@ -82,6 +85,7 @@ ctx.fill();
 ctx.closePath();
 
 }
+//Metoda odpowiedzielna za poruszanie się gracza oraz sprawdzająca czy nie jest za wysoko lub za nisko
 Player.prototype.update = function()
 {
 	this.Acceleration_Y += 0.1;
@@ -90,10 +94,12 @@ Player.prototype.update = function()
 	if (this.Position_x <= 0)
 	{
 		this.Move_Direction = 1;
+		Add_Score();
 	}
 	if(this.Position_x+this.Size_x >= canvas.width)
 	{
 		this.Move_Direction = -1;
+		Add_Score();
 	}
 	if(this.Position_y+this.Size_y<0 || this.Position_y>canvas.height)
 	{
@@ -103,12 +109,15 @@ Player.prototype.update = function()
 	
 	this.Position_x += this.Player_Speed*this.Move_Direction;
 }
+//Metoda odpowiedzialna za skok gracza
 Player.prototype.jump = function ()
 {
 	this.Acceleration_Y = -5;
 }
+//Metoda sprawdzająca czy nastąpiła kolizja z kolcem
 Player.prototype.collisionDetect = function(SpikeClass)
 {
+	
 	if (SpikeClass.direction == -1)
 	{
 		
@@ -124,12 +133,28 @@ Player.prototype.collisionDetect = function(SpikeClass)
 		}
 
 	}
-	
+	else if (SpikeClass.direction == 1)
+	{
+		
+		if ((this.Position_y < SpikeClass.position_y && this.Position_y+this.Size_y > SpikeClass.position_y)||(this.Position_y < SpikeClass.position_y + SpikeClass.Size_y && this.Position_y + this.Size_y > SpikeClass.position_y+SpikeClass.Size_y))
+		{
+		
+			if (this.Position_x<SpikeClass.Size_x)
+			{
+			EndGame();
+			}
+			
+			
+		}
+		
+		
+	}
 }
 
-
+//Deklaracja gracza
 var Gracz = new Player(75,75,canvas.width/2-25,canvas.height/2-25,0,-1,2);
 
+//Deklaracja tablicy z kolcami
 var Kolce = [6];
 Kolce[0] = new SpikeClass(30,30,40,-1);
 Kolce[1] = new SpikeClass(30,30,200,-1);
@@ -139,21 +164,29 @@ Kolce[3] = new SpikeClass(30,30,40,1);
 Kolce[4] = new SpikeClass(30,30,200,1);
 Kolce[5] = new SpikeClass(30,30,500,1);
 
+//funkcja rysująca scene
 function DrawScene()
 {
+	//czyszczenie obrazu
 	ctx.clearRect(0,0,canvas.width,canvas.height);
 
+	//Rysowanie tablicy wyników
+	Draw_Score();
+	
+	//Rysowanie Gracza
 	Gracz.draw();
 	
+	//Rysowanie Kolców
 	for(var a = 0; a < Kolce.length; a++)
 	{
 		Kolce[a].draw();
 	}
 	
-
+   //Rysowanie "strzałki w kułku" na początku gry
 	if(!GameStarded)
 	{
 	ctx.beginPath();
+	ctx.font = "120px FontAwesome";
 	ctx.fillStyle = 'grey';
 	ctx.textAlign = 'center';
 	ctx.fillText("\uf01d",canvas.width/2,canvas.height/2+30);
@@ -161,19 +194,21 @@ function DrawScene()
 	}
 }
 
+//Główna pętla gry
 function Update() {
 
-if (GameStarded)
-{
-Gracz.update();
-
-for(var a = 0; a < Kolce.length; a++)
-{
-		Gracz.collisionDetect(Kolce[a]);
-}
-
-}
-DrawScene();
+//	Jeżeli gra wystartowała to...
+	if (GameStarded)
+	{
+		Gracz.update();
+		for(var a = 0; a < Kolce.length; a++)
+		{
+				//Sprawdzanie kolizji z kolcami
+				Gracz.collisionDetect(Kolce[a]);
+		}
+	}
+	//Rysuj scene
+	DrawScene();
 }
 
 function Jump(e)
@@ -196,6 +231,7 @@ function EndGame()
 
 function ClearGame()
 {
+	Reset();
 	refreshScript('script.js');
 }
 
