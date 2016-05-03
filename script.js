@@ -95,11 +95,13 @@ Player.prototype.update = function()
 	{
 		this.Move_Direction = 1;
 		Add_Score();
+		GenerateSpikes(-1);
 	}
 	if(this.Position_x+this.Size_x >= canvas.width)
 	{
 		this.Move_Direction = -1;
 		Add_Score();
+		GenerateSpikes(1);
 	}
 	if(this.Position_y+this.Size_y<0 || this.Position_y>canvas.height)
 	{
@@ -152,17 +154,20 @@ Player.prototype.collisionDetect = function(SpikeClass)
 }
 
 //Deklaracja gracza
-var Gracz = new Player(75,75,canvas.width/2-25,canvas.height/2-25,0,-1,2);
+var Gracz = new Player(55,55,canvas.width/2-25,canvas.height/2-25,0,-1,2);
 
 //Deklaracja tablicy z kolcami
-var Kolce = [6];
-Kolce[0] = new SpikeClass(30,30,40,-1);
-Kolce[1] = new SpikeClass(30,30,200,-1);
-Kolce[2] = new SpikeClass(30,30,500,-1);
+var LKolce = [10];
+LKolce[0] = new SpikeClass(30,30,40,1);
+LKolce[1] = new SpikeClass(30,30,200,1);
+LKolce[2] = new SpikeClass(30,30,80,1);
 
-Kolce[3] = new SpikeClass(30,30,40,1);
-Kolce[4] = new SpikeClass(30,30,200,1);
-Kolce[5] = new SpikeClass(30,30,500,1);
+
+
+var RKolce = [10];
+RKolce[0] = new SpikeClass(30,30,40,-1);
+RKolce[1] = new SpikeClass(30,30,200,-1);
+RKolce[2] = new SpikeClass(30,30,500,-1);
 
 //funkcja rysująca scene
 function DrawScene()
@@ -177,9 +182,16 @@ function DrawScene()
 	Gracz.draw();
 	
 	//Rysowanie Kolców
-	for(var a = 0; a < Kolce.length; a++)
+	
+
+	for(var a = 0; a < LKolce.length; a++)
 	{
-		Kolce[a].draw();
+		LKolce[a].draw();
+	}
+	
+	for(var a = 0; a < RKolce.length; a++)
+	{
+		RKolce[a].draw();
 	}
 	
    //Rysowanie "strzałki w kułku" na początku gry
@@ -201,10 +213,16 @@ function Update() {
 	if (GameStarded)
 	{
 		Gracz.update();
-		for(var a = 0; a < Kolce.length; a++)
+		
+		for(var a = 0; a < RKolce.length; a++)
 		{
 				//Sprawdzanie kolizji z kolcami
-				Gracz.collisionDetect(Kolce[a]);
+				Gracz.collisionDetect(RKolce[a]);
+		}
+		for(var a = 0; a < LKolce.length; a++)
+		{
+				//Sprawdzanie kolizji z kolcami
+				Gracz.collisionDetect(LKolce[a]);
 		}
 	}
 	//Rysuj scene
@@ -222,6 +240,27 @@ function StartControl()
 	{
 		GameStarded = true;
 	}
+}
+
+function GenerateSpikes(Direction)
+{
+	if (Direction == -1)
+	{
+		LKolce.length = 6;
+		for (var a = 0; a<LKolce.length; a++)
+		{
+			LKolce[a] = new SpikeClass(30,30,rand(1,64)*10,-1);
+		}
+	}
+	else if (Direction == 1)
+	{
+		RKolce.length = 6;
+		for (var a = 0; a<LKolce.length; a++)
+		{
+			RKolce[a] = new SpikeClass(30,30,rand(1,64)*10,1);
+		}
+	}
+	
 }
 
 function EndGame()
@@ -243,6 +282,20 @@ function refreshScript (src) {
   scriptElement.src = src + '?' + index++;
   document.getElementsByTagName('head')[0].appendChild(scriptElement);
 }
+
+function rand( min, max ){
+    min = parseInt( min, 10 );
+    max = parseInt( max, 10 );
+
+    if ( min > max ){
+        var tmp = min;
+        min = max;
+        max = tmp;
+    }
+
+    return Math.floor( Math.random() * ( max - min + 1 ) + min );
+}
+
 
 //Ustawia by funkcja Update wykonywała się co 10 ms
 var Interval_ID = setInterval(Update, 10)
